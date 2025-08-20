@@ -1,137 +1,149 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_curve
-st.set_page_config(page_title="Stroke Prediction App", layout="wide")
-st.title("🧠 Stroke Prediction Dashboard")
-st.markdown("This app uses multiple ML models (LogReg, SVM, KNN, RF, GB) trained with **SMOTE** to predict stroke risk.")
-# ===============================
-# Load Saved Models
-# ===============================
-@st.cache_resource
-def load_models():
-    models = {}
-    models['Logistic Regression'] = pickle.load(open("logistic_regression_smote.pkl", "rb"))
-    models['SVM'] = pickle.load(open("svm_smote.pkl", "rb"))
-    models['KNN'] = pickle.load(open("knn_smote.pkl", "rb"))
-    models['Random Forest'] = pickle.load(open("random_forest_smote.pkl", "rb"))
-    models['Gradient Boosting'] = pickle.load(open("gradient_boosting_smote.pkl", "rb"))
-    # Uncomment if you saved voting
-    # models['Voting Classifier'] = pickle.load(open("vc_model.pkl", "rb"))
-    return models
+import joblib
 
-models = load_models()
+# =============================
+# Load models
+# =============================
+model_files = {
+    "Logistic Regression": "saved_models/logistic_regression_smote.pkl",
+    "SVM": "saved_models/svm_smote.pkl",
+    "KNN": "saved_models/knn_smote.pkl",
+    "Random Forest": "saved_models/random_forest_smote.pkl",
+    "Gradient Boosting": "saved_models/gradient_boosting_smote.pkl"
+}
+models = {name: joblib.load(path) for name, path in model_files.items()}
 
-# ===============================
-# Page Config
-# ===============================
+# =============================
+# Load datasets (for full evaluation)
+# =============================
+x_linear = pd.read_csv('linear_models_df.csv')
+x_tree = pd.read_csv('tree_models_df.csv')
 
+# Remove any unwanted index columns
+x_linear = x_linear.loc[:, ~x_linear.columns.str.contains('^Unnamed')]
+x_tree = x_tree.loc[:, ~x_tree.columns.str.contains('^Unnamed')]
 
-# ===============================
-# Sidebar Input
-# ===============================
-st.sidebar.header("Patient Information")
-def user_input():
-    gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
-    age = st.sidebar.slider("Age", 0, 100, 50)
-    hypertension = st.sidebar.selectbox("Hypertension", [0, 1])
-    heart_disease = st.sidebar.selectbox("Heart Disease", [0, 1])
-    ever_married = st.sidebar.selectbox("Ever Married", ["Yes", "No"])
-    work_type = st.sidebar.selectbox("Work Type", ["Private", "Self-employed", "Govt_job", "children", "Never_worked"])
-    Residence_type = st.sidebar.selectbox("Residence Type", ["Urban", "Rural"])
-    avg_glucose_level = st.sidebar.slider("Average Glucose Level", 40, 300, 100)
-    bmi = st.sidebar.slider("BMI", 10, 60, 25)
-    smoking_status = st.sidebar.selectbox("Smoking Status", ["formerly smoked", "never smoked", "smokes", "Unknown"])
-    
-    data = {
-        'gender': gender,
-        'age': age,
-        'hypertension': hypertension,
-        'heart_disease': heart_disease,
-        'ever_married': ever_married,
-        'work_type': work_type,
-        'Residence_type': Residence_type,
-        'avg_glucose_level': avg_glucose_level,
-        'bmi': bmi,
-        'smoking_status': smoking_status
-    }
-    return pd.DataFrame(data, index=[0])
+# =============================
+# Streamlit UI
+# =============================
+st.title("Stroke Prediction App")
+st.write("Choose a model, predict stroke probability for a single patient, or evaluate the whole dataset.")
 
-input_df = user_input()
+# =============================
+# Model selection
+# =============================
+model_choice = st.selectbox(
+    "Select a model (Logistic Regression recommended)",
+    options=list(models.keys()),
+    index=0
+)
+model = models[model_choice]
 
-# ===============================
-# Preprocessing
-# ===============================
-# Drop gender "Other"
-if "gender" in input_df.columns and (input_df["gender"] == "Other").any():
-    input_df = input_df[input_df["gender"] != "Other"]
+# =============================
+# Feature Input Section
+# =============================
+st.subheader("Enter Patient Features")
 
-# One-hot encoding (must match training preprocessing)
-input_processed = pd.get_dummies(input_df)
+# Numeric features
+age_hyper = st.number_input("Age", 0, 120, 30)
+avg_glucose_level = st.number_input("Average Glucose Level", 50.0, 300.0, 100.0)
+bmi = st.number_input("BMI", 10.0, 60.0, 25.0)
+hypertension = st.selectbox("Hypertension (0=No, 1=Yes)", [0,1])
+heart_disease = st.selectbox("Heart Disease (0=No, 1=Yes)", [0,1])
 
-# Align with training feature names
-# Load feature names from training
-feature_names = pickle.load(open("feature_names.pkl", "rb"))  # Save this during training
-for col in feature_names:
-    if col not in input_processed:
-        input_processed[col] = 0
-input_processed = input_processed[feature_names]  # reorder
+# Categorical features
+gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+work_type = st.selectbox("Work Type", ["Private", "Self-employed", "Govt_job", "children", "Never_worked"])
+smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes", "Unknown"])
+marital_status = st.selectbox("Marital Status", ["Single", "Married", "Divorced", "Widowed"])
+residence_type = st.selectbox("Residence Type", ["Urban", "Rural"])
 
-st.subheader("📝 Patient Data")
-st.write(input_df)
+# =============================
+# Convert inputs to dataframe
+# =============================
+input_dict = {
+    "age_hyper": [age_hyper],
+    "avg_glucose_level": [avg_glucose_level],
+    "bmi": [bmi],
+    "hypertension": [hypertension],
+    "heart_disease": [heart_disease],
+    "gender": [gender],
+    "work_type": [work_type],
+    "smoking_status": [smoking_status],
+    "marital_status": [marital_status],
+    "residence_type": [residence_type]
+}
+df_input = pd.DataFrame(input_dict)
 
-# ===============================
-# Predictions
-# ===============================
-st.subheader("🔮 Model Predictions")
-results = {}
+# =============================
+# One-hot encode categorical variables
+# =============================
+categorical_cols = ["gender", "work_type", "smoking_status", "marital_status", "residence_type"]
+df_input = pd.get_dummies(df_input, columns=categorical_cols)
 
-for name, model in models.items():
-    try:
-        y_pred = model.predict(input_processed)[0]
-        y_proba = model.predict_proba(input_processed)[0][1]
-        results[name] = {"Prediction": y_pred, "Probability": y_proba}
-    except Exception as e:
-        results[name] = {"Error": str(e)}
+# =============================
+# Match model training columns
+# =============================
+if model_choice in ["Logistic Regression", "SVM", "KNN"]:
+    training_cols = x_linear.columns
+else:
+    training_cols = x_tree.columns
 
-results_df = pd.DataFrame(results).T
-st.dataframe(results_df)
+# Add missing columns
+for col in training_cols:
+    if col not in df_input.columns:
+        df_input[col] = 0
 
-# ===============================
-# ROC & Precision-Recall Curves (static example with training/test)
-# ===============================
-st.subheader("📊 Model Performance (Test Data)")
-st.markdown("Below are sample plots from training/test evaluation.")
+# Drop extra columns not in training
+df_input = df_input[training_cols]
 
-# Load test data results if saved
-try:
-    X_test = pickle.load(open("x_test.pkl", "rb"))
-    y_test = pickle.load(open("y_test.pkl", "rb"))
+# Convert to numpy array
+input_data = df_input.values
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+# =============================
+# Single patient prediction
+# =============================
+if st.button("Predict Single Patient Stroke Probability"):
+    if hasattr(model, "predict_proba"):
+        prob = model.predict_proba(input_data)[:, 1][0]
+    else:
+        try:
+            prob = model.decision_function(input_data)
+            prob = (prob - prob.min()) / (prob.max() - prob.min())
+            prob = prob[0]
+        except:
+            prob = model.predict(input_data)[0]
+    st.success(f"🩺 Predicted probability of having a stroke: {prob*100:.2f}%")
 
-    # ROC Curve
-    for name, model in models.items():
-        if hasattr(model, "predict_proba"):
-            y_proba = model.predict_proba(X_test)[:, 1]
-            fpr, tpr, _ = roc_curve(y_test, y_proba)
-            axes[0].plot(fpr, tpr, label=f"{name} (AUC={auc(fpr,tpr):.2f})")
-    axes[0].plot([0, 1], [0, 1], 'k--')
-    axes[0].set_title("ROC Curves")
-    axes[0].legend()
+# =============================
+# Full dataset evaluation
+# =============================
+st.markdown("---")
+st.subheader("Evaluate Whole Dataset")
 
-    # Precision-Recall
-    for name, model in models.items():
-        if hasattr(model, "predict_proba"):
-            y_proba = model.predict_proba(X_test)[:, 1]
-            prec, rec, _ = precision_recall_curve(y_test, y_proba)
-            axes[1].plot(rec, prec, label=name)
-    axes[1].set_title("Precision-Recall Curves")
-    axes[1].legend()
+if st.button("Evaluate Whole Dataset"):
+    # Pick dataset
+    if model_choice in ["Logistic Regression", "SVM", "KNN"]:
+        X = x_linear.copy()
+    else:
+        X = x_tree.copy()
 
-    st.pyplot(fig)
-except:
-    st.warning("Test data not available for ROC/PR plots. Save `x_test.pkl` and `y_test.pkl` to show them.")
+    # Remove unwanted columns
+    X = X.loc[:, training_cols]
 
+    # Compute probabilities
+    if hasattr(model, "predict_proba"):
+        probs = model.predict_proba(X)[:, 1]
+    else:
+        try:
+            probs = model.decision_function(X)
+            probs = (probs - probs.min()) / (probs.max() - probs.min())
+        except:
+            probs = model.predict(X)
+
+    stroke_count = np.sum(probs >= 0.5)  # threshold = 0.5
+    total_count = len(X)
+    st.success(f"Predicted Stroke Cases: {stroke_count}/{total_count}")
+    st.info(f"Percentage of patients predicted to have a stroke: {stroke_count/total_count*100:.2f}%")
