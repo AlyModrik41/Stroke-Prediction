@@ -22,6 +22,8 @@ This project applies machine learning models to a healthcare dataset, addressing
 - Built a **Streamlit app** for live stroke risk prediction.
 
 ---
+<img width="536" height="468" alt="download" src="https://github.com/user-attachments/assets/83cb8f8d-d915-4c57-ba1c-1ff6690d9c66" />
+
 
 ## ⚙️ Tech Stack
 - **Languages:** Python (Pandas, NumPy, Matplotlib, Seaborn)  
