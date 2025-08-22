@@ -22,17 +22,29 @@ This project applies machine learning models to a healthcare dataset, addressing
 - Built a **Streamlit app** for live stroke risk prediction.
 
 ---
-<img width="536" height="468" alt="download" src="https://github.com/user-attachments/assets/83cb8f8d-d915-4c57-ba1c-1ff6690d9c66" />
+
+## 📊 Data Visualization
+
+Some insights from the dataset:
+
+- **Correlation Heatmap** → shows relation between features (e.g., age, hypertension, heart disease).
+-   <img width="1214" height="700" alt="download" src="https://github.com/user-attachments/assets/58d4e193-b28d-4e1f-abfc-f0451e7fcdc8" />
+<img width="1214" height="700" alt="download" src="https://github.com/user-attachments/assets/9966fe57-0db9-45f1-93fe-4b6574e58384" />
+- **Distribution Plots** → comparison between stroke and non-stroke patients.
+- <img width="1227" height="603" alt="download" src="https://github.com/user-attachments/assets/5cc64496-d845-4062-bab1-20c7e1cd3eae" />
+<img width="1104" height="360" alt="newplot" src="https://github.com/user-attachments/assets/2309b0f7-723b-445a-b035-349d882213e0" />
+- **Categorical Analysis** → smoking status, work type, gender distribution.
+- <img width="580" height="464" alt="download" src="https://github.com/user-attachments/assets/2c267457-85c4-474c-8414-711ad6c18a97" />
+<img width="580" height="444" alt="download" src="https://github.com/user-attachments/assets/9c544de0-de49-4c70-9b16-e9e9b10c91b1" />
+
+- <img width="580" height="499" alt="download" src="https://github.com/user-attachments/assets/174b62f8-8462-414c-907a-58be9ce43dbe" />
+<img width="580" height="511" alt="download" src="https://github.com/user-attachments/assets/a2fdc701-702d-4225-835f-ac3292634fa8" />
 
 
-## ⚙️ Tech Stack
-- **Languages:** Python (Pandas, NumPy, Matplotlib, Seaborn)  
-- **ML Frameworks:** scikit-learn, imbalanced-learn (SMOTE)  
-- **App:** Streamlit  
-- **Other:** Joblib (model saving), GridSearchCV (hyperparameter tuning)  
+
+Example visualizations:   
 
 ---
-
 ## 📊 Results
 
 | Model                | Precision (Stroke=1) | Recall (Stroke=1) | F1-score (Stroke=1) | Accuracy |
