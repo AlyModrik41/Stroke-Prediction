@@ -46,6 +46,8 @@ Some insights from the dataset:
 <img width="778" height="526" alt="download" src="https://github.com/user-attachments/assets/2f19c03e-d029-43d5-96e3-b00e748da137" />
 ## **Confusion Matrices** -> Showing the True Positives, True Negatives, False Positives and False Negatives.
 <img width="1470" height="998" alt="download" src="https://github.com/user-attachments/assets/ffb500b1-ac22-4e22-ae34-bc5480b69040" />
+## **Precision-Recall Curves** -> AUC-ROC Curves for All Models
+<img width="1470" height="998" alt="download" src="https://github.com/user-attachments/assets/ffb500b1-ac22-4e22-ae34-bc5480b69040" />
 
 ---
 ## 📊 Results
