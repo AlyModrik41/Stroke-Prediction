@@ -40,8 +40,10 @@ Some insights from the dataset:
 - <img width="580" height="499" alt="download" src="https://github.com/user-attachments/assets/174b62f8-8462-414c-907a-58be9ce43dbe" />
 <img width="580" height="511" alt="download" src="https://github.com/user-attachments/assets/a2fdc701-702d-4225-835f-ac3292634fa8" />
 
+
 ## 📊 Random Forest Metrics: 
 <img width="536" height="468" alt="download" src="https://github.com/user-attachments/assets/0732b447-6395-47aa-8785-919275f754c0" />
+
 ## 📊 Random Forest Feature Importance:
 <img width="778" height="526" alt="download" src="https://github.com/user-attachments/assets/2f19c03e-d029-43d5-96e3-b00e748da137" />
 
