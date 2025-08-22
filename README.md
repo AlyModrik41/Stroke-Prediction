@@ -40,9 +40,12 @@ Some insights from the dataset:
 - <img width="580" height="499" alt="download" src="https://github.com/user-attachments/assets/174b62f8-8462-414c-907a-58be9ce43dbe" />
 <img width="580" height="511" alt="download" src="https://github.com/user-attachments/assets/a2fdc701-702d-4225-835f-ac3292634fa8" />
 
-
-
-Example visualizations:   
+## 📊 Random Forest Metrics: 
+<img width="536" height="468" alt="download" src="https://github.com/user-attachments/assets/0732b447-6395-47aa-8785-919275f754c0" />
+## 📊 Random Forest Feature Importance:
+<img width="778" height="526" alt="download" src="https://github.com/user-attachments/assets/2f19c03e-d029-43d5-96e3-b00e748da137" />
+## **Confusion Matrices** -> Showing the True Positives, True Negatives, False Positives and False Negatives.
+![Uploading download.png…]()
 
 ---
 ## 📊 Results
@@ -51,7 +54,7 @@ Example visualizations:
 |-----------------------|----------------------|-------------------|----------------------|----------|
 | Logistic Regression   | 0.16                 | 0.48              | 0.24                 | 0.87     |
 | Decision Tree         | 0.12                 | 0.26              | 0.16                 | 0.89     |
-| Random Forest         | 0.09                 | 0.10              | 0.09                 | 0.92     |
+| Random Forest         | 0.10                 | 0.71              | 0.17                 | 0.70     |
 
 > ⚠️ The dataset is **highly imbalanced** (stroke cases are rare).  
 > Future work may include advanced techniques (XGBoost, cost-sensitive learning, or deep learning).
